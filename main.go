@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gtodos/db"
 	"gtodos/models"
 )
 
@@ -10,6 +11,8 @@ func main() {
 		Description: "some",
 		Done:        false,
 	}
+
+	db.MakeDb("ciao")
 
 	fmt.Println(t)
 }
