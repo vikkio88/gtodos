@@ -1,8 +1,8 @@
 package models
 
 type Todo struct {
-	Description string
-	Done        bool
+	Description string `clover:"description"`
+	Done        bool   `clover:"done"`
 }
 
 func (t *Todo) MarkAsDone() {

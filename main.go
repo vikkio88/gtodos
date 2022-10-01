@@ -12,7 +12,11 @@ func main() {
 		Done:        false,
 	}
 
-	db.MakeDb("ciao")
-
-	fmt.Println(t)
+	data := db.MakeDb("ciao")
+	data.GetAllTodos()
+	data.InsertTodo(t)
+	ts := data.GetAllTodos()
+	for _, t := range ts {
+		fmt.Println(t)
+	}
 }
