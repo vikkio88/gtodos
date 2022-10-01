@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"gtodos/db"
 	"gtodos/models"
 )
@@ -12,11 +11,13 @@ func main() {
 		Done:        false,
 	}
 
-	data := db.MakeDb("ciao")
+	data := db.MakeDb("db_files")
 	data.GetAllTodos()
-	data.InsertTodo(t)
-	ts := data.GetAllTodos()
-	for _, t := range ts {
-		fmt.Println(t)
+	for range [1000]int{} {
+		data.InsertTodo(t)
 	}
+	// ts := data.GetAllTodos()
+	// for _, t := range ts {
+	// 	fmt.Println(t)
+	// }
 }

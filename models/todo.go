@@ -1,6 +1,7 @@
 package models
 
 type Todo struct {
+	Id          string
 	Description string `clover:"description"`
 	Done        bool   `clover:"done"`
 }
