@@ -3,7 +3,6 @@ package db
 import (
 	"fmt"
 	"gtodos/models"
-	"time"
 
 	c "github.com/ostafen/clover/v2"
 )
@@ -14,6 +13,13 @@ type Db struct {
 	db *c.DB
 }
 
+func formatTodo(doc *c.Document) models.Todo {
+	t := models.Todo{}
+	doc.Unmarshal(&t)
+	t.Id = doc.ObjectId()
+	return t
+}
+
 func (db *Db) GetAllTodos() []models.Todo {
 	docs, err := db.db.FindAll(c.NewQuery(TODO_COLLECTION))
 	if err != nil {
@@ -21,23 +27,52 @@ func (db *Db) GetAllTodos() []models.Todo {
 	}
 	result := make([]models.Todo, 0)
 	for _, doc := range docs {
-		t := models.Todo{}
-		doc.Unmarshal(&t)
-		t.Id = doc.ObjectId()
-		result = append(result, t)
+		result = append(result, formatTodo(doc))
 	}
 
 	return result
 }
 
-func (db *Db) InsertTodo(todo models.Todo) {
-	doc := c.NewDocumentOf(todo)
-	x := time.Now()
-	_, err := db.db.InsertOne(TODO_COLLECTION, doc)
-	fmt.Println(time.Since(x))
+func (db *Db) FindTodoById(id string) *models.Todo {
+	doc, err := db.db.FindById(TODO_COLLECTION, id)
 	if err != nil {
-		panic(err)
+		return nil
 	}
+
+	t := formatTodo(doc)
+
+	return &t
+
+}
+
+func (db *Db) InsertTodo(todo *models.Todo) bool {
+	doc := c.NewDocumentOf(todo)
+	id, err := db.db.InsertOne(TODO_COLLECTION, doc)
+	todo.Id = id
+	return err == nil
+}
+
+func (db *Db) InsertManyTodos(todos []models.Todo) bool {
+	docs := make([]*c.Document, len(todos))
+	for i, t := range todos {
+		docs[i] = c.NewDocumentOf(t)
+	}
+	err := db.db.Insert(TODO_COLLECTION, docs...)
+	return err == nil
+}
+
+func (db *Db) UpdateTodo(todo *models.Todo) bool {
+	mapped := todo.ToMap()
+	fmt.Println(mapped)
+	err := db.db.UpdateById(TODO_COLLECTION, todo.Id, mapped)
+
+	return err == nil
+}
+
+func (db *Db) DeleteTodo(todo *models.Todo) bool {
+	err := db.db.DeleteById(TODO_COLLECTION, todo.Id)
+
+	return err == nil
 
 }
 
