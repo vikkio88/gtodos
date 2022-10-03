@@ -1,23 +1,26 @@
 package main
 
 import (
-	"gtodos/db"
-	"gtodos/models"
+	// "gtodos/db"
+
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
-	t := models.Todo{
-		Description: "some",
-		Done:        false,
-	}
+	// db := db.MakeDb("db_files")
+	// todos := db.GetAllTodos()
+	a := app.NewWithID("gtodos")
+	w := a.NewWindow("GTodos")
 
-	data := db.MakeDb("db_files")
-	data.GetAllTodos()
-	for range [1000]int{} {
-		data.InsertTodo(t)
-	}
-	// ts := data.GetAllTodos()
-	// for _, t := range ts {
-	// 	fmt.Println(t)
-	// }
+	title := widget.NewLabel("GTodos")
+	title1 := widget.NewLabel("GTodos1")
+	title2 := widget.NewLabel("GTodos2")
+
+	grid := container.New(layout.NewGridLayout(2), title, title1, title2)
+	w.SetContent(grid)
+
+	w.ShowAndRun()
 }
