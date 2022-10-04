@@ -3,6 +3,9 @@ package main
 import (
 	// "gtodos/db"
 
+	"fmt"
+
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
@@ -15,12 +18,29 @@ func main() {
 	a := app.NewWithID("gtodos")
 	w := a.NewWindow("GTodos")
 
-	title := widget.NewLabel("GTodos")
-	title1 := widget.NewLabel("GTodos1")
-	title2 := widget.NewLabel("GTodos2")
+	w.Resize(fyne.NewSize(480, 320))
+	var data = []string{"a", "string", "list"}
 
-	grid := container.New(layout.NewGridLayout(2), title, title1, title2)
-	w.SetContent(grid)
+	list := widget.NewList(
+		func() int {
+			return len(data)
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("template")
+		},
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			o.(*widget.Label).SetText(data[i])
+		})
+
+	topContent := container.New(layout.NewVBoxLayout(), list)
+
+	top := container.New(layout.NewMaxLayout(), topContent)
+	input := widget.NewEntry()
+	button := widget.NewButton("Add", func() { fmt.Println("clicked") })
+	bottom := container.New(layout.NewMaxLayout(), container.New(layout.NewVBoxLayout(), input, button))
+
+	content := container.New(layout.NewVBoxLayout(), top, layout.NewSpacer(), container.New(layout.NewMaxLayout(), bottom))
+	w.SetContent(content)
 
 	w.ShowAndRun()
 }
