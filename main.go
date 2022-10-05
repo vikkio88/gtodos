@@ -3,11 +3,12 @@ package main
 import (
 	// "gtodos/db"
 
-	"fmt"
+	"gtodos/models"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -19,27 +20,26 @@ func main() {
 	w := a.NewWindow("GTodos")
 
 	w.Resize(fyne.NewSize(480, 320))
-	var data = []string{"a", "string", "list"}
+	var data = binding.NewUntypedList()
 
-	list := widget.NewList(
-		func() int {
-			return len(data)
-		},
+	list := widget.NewListWithData(
+		data,
 		func() fyne.CanvasObject {
-			return widget.NewLabel("template")
+			return widget.NewLabel("placeholder")
 		},
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(data[i])
-		})
+		func(di binding.DataItem, co fyne.CanvasObject) {
+			di.(*models.Todo).Description
+			co.(*widget.Label).Bind(binding.BindString())
+		},
+	)
 
-	topContent := container.New(layout.NewVBoxLayout(), list)
-
-	top := container.New(layout.NewMaxLayout(), topContent)
 	input := widget.NewEntry()
-	button := widget.NewButton("Add", func() { fmt.Println("clicked") })
-	bottom := container.New(layout.NewMaxLayout(), container.New(layout.NewVBoxLayout(), input, button))
+	button := widget.NewButton("Add", func() {
+		data = append(data, input.Text)
+	})
+	bottom := container.New(layout.NewVBoxLayout(), input, button)
 
-	content := container.New(layout.NewVBoxLayout(), top, layout.NewSpacer(), container.New(layout.NewMaxLayout(), bottom))
+	content := container.New(layout.NewBorderLayout(nil, bottom, nil, nil), bottom, list)
 	w.SetContent(content)
 
 	w.ShowAndRun()
