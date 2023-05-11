@@ -24,7 +24,6 @@ func (t *Todo) MarkAsToDo() {
 
 func (t *Todo) ToMap() map[string]interface{} {
 	result := map[string]interface{}{}
-
 	result["description"] = t.Description
 	result["done"] = t.Done
 

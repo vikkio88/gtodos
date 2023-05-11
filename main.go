@@ -1,10 +1,9 @@
 package main
 
 import (
-	// "gtodos/db"
-
-	"fmt"
+	"gtodos/db"
 	"gtodos/models"
+	"gtodos/services"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -14,42 +13,48 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func todoFromDataItem(item binding.DataItem) *models.Todo {
-	u, _ := item.(binding.Untyped)
-	v, _ := u.Get()
-	t, _ := v.(models.Todo)
-	return &t
+func bindDataToListLine(todos *services.Todos) func(di binding.DataItem, co fyne.CanvasObject) {
+	return func(di binding.DataItem, co fyne.CanvasObject) {
+		id, err := di.(binding.String).Get()
+		if err != nil {
+			return
+		}
+		t, err1 := todos.Get(id)
+		if err1 != nil {
+			return
+		}
+		container := co.(*fyne.Container)
+		label := container.Objects[1].(*widget.Label)
+		check := container.Objects[0].(*widget.Check)
+		label.Bind(binding.BindString(&t.Description))
+		check.Bind(binding.BindBool(&t.Done))
+	}
+}
+func rederListLine() fyne.CanvasObject {
+	c := widget.NewCheck("", nil)
+	return container.New(layout.NewBorderLayout(nil, nil, nil, c), c, widget.NewLabel(""))
 }
 
 func main() {
-	// db := db.MakeDb("db_files")
-	// todos := db.GetAllTodos()
+	db := db.MakeDb("db_files")
+	defer db.Close()
+
+	todos := services.NewTodosFromDb(&db)
 	a := app.NewWithID("gtodos")
 	w := a.NewWindow("GTodos")
 
 	w.Resize(fyne.NewSize(480, 600))
-	var data = binding.NewUntypedList()
-	data.Append(models.NewTodo("test"))
 
 	list := widget.NewListWithData(
-		data,
-		func() fyne.CanvasObject {
-			c := widget.NewCheck("", nil)
-			return container.New(layout.NewBorderLayout(nil, nil, nil, c), c, widget.NewLabel(""))
-		},
-		func(di binding.DataItem, co fyne.CanvasObject) {
-			t := todoFromDataItem(di)
-			container := co.(*fyne.Container)
-			label := container.Objects[1].(*widget.Label)
-			check := container.Objects[0].(*widget.Check)
-			label.Bind(binding.BindString(&t.Description))
-			check.Bind(binding.BindBool(&t.Done))
-		},
+		todos.Data,
+		rederListLine,
+		bindDataToListLine(&todos),
 	)
 
 	input := widget.NewEntry()
 	addButton := widget.NewButton("Add", func() {
-		data.Append(models.NewTodo(input.Text))
+		t := models.NewTodo(input.Text)
+		todos.Add(&t)
 		input.SetText("")
 	})
 	addButton.Disable()
@@ -61,20 +66,15 @@ func main() {
 
 		addButton.Disable()
 	}
-
-	resetButton := widget.NewButton("Reset", func() {
-		list, _ := data.Get()
-		list = list[:0]
-		data.Set(list)
+	resetButton := widget.NewButton("Delete All", func() {
+		todos.Drop()
 	})
 	saveButton := widget.NewButton("Save", func() {
-		fmt.Println("saving")
+		todos.Persist()
 	})
-
 	bottom := container.New(layout.NewVBoxLayout(), container.New(layout.NewAdaptiveGridLayout(2), input, addButton), resetButton, saveButton)
-
 	content := container.New(layout.NewBorderLayout(nil, bottom, nil, nil), bottom, list)
-	w.SetContent(content)
 
+	w.SetContent(content)
 	w.ShowAndRun()
 }
