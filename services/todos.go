@@ -1,17 +1,16 @@
 package services
 
 import (
-	"errors"
 	"gtodos/db"
 	"gtodos/models"
+	"gtodos/utils"
 
 	"fyne.io/fyne/v2/data/binding"
 )
 
 type Todos struct {
-	db    *db.Db
-	todos map[string]*models.Todo
-	Data  binding.StringList
+	db   *db.Db
+	Data binding.UntypedList
 }
 
 func NewTodosFromDb(db *db.Db) Todos {
@@ -21,9 +20,8 @@ func NewTodosFromDb(db *db.Db) Todos {
 
 func NewTodos(db *db.Db, todos []models.Todo) Todos {
 	t := Todos{
-		db:    db,
-		todos: map[string]*models.Todo{},
-		Data:  binding.NewStringList(),
+		db:   db,
+		Data: binding.NewUntypedList(),
 	}
 
 	for _, td := range todos {
@@ -38,26 +36,23 @@ func NewTodos(db *db.Db, todos []models.Todo) Todos {
 
 func (t *Todos) Drop() {
 	t.db.Drop()
-	t.todos = map[string]*models.Todo{}
-	t.Data.Set([]string{})
+	list, _ := t.Data.Get()
+	list = list[:0]
+	t.Data.Set(list)
 }
 
 func (t *Todos) Persist() {
 	t.db.Save(t.All())
 }
 
-func (t *Todos) Get(id string) (*models.Todo, error) {
-	if t, ok := t.todos[id]; ok {
-		return t, nil
-	}
-
-	return nil, errors.New("No Todo")
-}
-
 func (t *Todos) All() []*models.Todo {
 	result := []*models.Todo{}
-	for _, v := range t.todos {
-		result = append(result, v)
+	for i := 0; i < t.Data.Length(); i++ {
+		di, err := t.Data.GetItem(i)
+		if err != nil {
+			break
+		}
+		result = append(result, utils.TodoFromDataItem(di))
 	}
 
 	return result
@@ -67,6 +62,5 @@ func (t *Todos) Add(todo *models.Todo) {
 	if todo.Id == "" {
 		t.db.InsertTodo(todo)
 	}
-	t.todos[todo.Id] = todo
-	t.Data.Append(todo.Id)
+	t.Data.Prepend(todo)
 }

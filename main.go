@@ -4,6 +4,7 @@ import (
 	"gtodos/db"
 	"gtodos/models"
 	"gtodos/services"
+	"gtodos/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -12,28 +13,6 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
-
-func bindDataToListLine(todos *services.Todos) func(di binding.DataItem, co fyne.CanvasObject) {
-	return func(di binding.DataItem, co fyne.CanvasObject) {
-		id, err := di.(binding.String).Get()
-		if err != nil {
-			return
-		}
-		t, err1 := todos.Get(id)
-		if err1 != nil {
-			return
-		}
-		container := co.(*fyne.Container)
-		label := container.Objects[1].(*widget.Label)
-		check := container.Objects[0].(*widget.Check)
-		label.Bind(binding.BindString(&t.Description))
-		check.Bind(binding.BindBool(&t.Done))
-	}
-}
-func rederListLine() fyne.CanvasObject {
-	c := widget.NewCheck("", nil)
-	return container.New(layout.NewBorderLayout(nil, nil, nil, c), c, widget.NewLabel(""))
-}
 
 func main() {
 	db := db.MakeDb("db_files")
@@ -77,4 +56,19 @@ func main() {
 
 	w.SetContent(content)
 	w.ShowAndRun()
+}
+
+func bindDataToListLine(todos *services.Todos) func(di binding.DataItem, co fyne.CanvasObject) {
+	return func(di binding.DataItem, co fyne.CanvasObject) {
+		t := utils.TodoFromDataItem(di)
+		container := co.(*fyne.Container)
+		label := container.Objects[1].(*widget.Label)
+		check := container.Objects[0].(*widget.Check)
+		label.Bind(binding.BindString(&t.Description))
+		check.Bind(binding.BindBool(&t.Done))
+	}
+}
+func rederListLine() fyne.CanvasObject {
+	c := widget.NewCheck("", nil)
+	return container.New(layout.NewBorderLayout(nil, nil, nil, c), c, widget.NewLabel(""))
 }
