@@ -19,6 +19,7 @@ func main() {
 	defer db.Close()
 
 	todos := services.NewTodosFromDb(&db)
+	defer todos.Persist()
 	a := app.NewWithID("gtodos")
 	w := a.NewWindow("GTodos")
 
@@ -45,16 +46,14 @@ func main() {
 
 		addButton.Disable()
 	}
-	resetButton := widget.NewButton("Delete All", func() {
+	deleteButton := widget.NewButton("Delete All", func() {
 		todos.Drop()
 	})
-	saveButton := widget.NewButton("Save", func() {
-		todos.Persist()
-	})
-	bottom := container.New(layout.NewVBoxLayout(), container.New(layout.NewAdaptiveGridLayout(2), input, addButton), resetButton, saveButton)
+	bottom := container.New(layout.NewVBoxLayout(), container.New(layout.NewAdaptiveGridLayout(2), input, addButton), deleteButton)
 	content := container.New(layout.NewBorderLayout(nil, bottom, nil, nil), bottom, list)
 
 	w.SetContent(content)
+	w.Canvas().Focus(input)
 	w.ShowAndRun()
 }
 
