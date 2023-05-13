@@ -3,7 +3,6 @@ package services
 import (
 	"gtodos/db"
 	"gtodos/models"
-	"gtodos/utils"
 
 	"fyne.io/fyne/v2/data/binding"
 )
@@ -52,7 +51,7 @@ func (t *Todos) All() []*models.Todo {
 		if err != nil {
 			break
 		}
-		result = append(result, utils.TodoFromDataItem(di))
+		result = append(result, models.NewTodoFromDataItem(di))
 	}
 
 	return result

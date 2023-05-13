@@ -4,7 +4,6 @@ import (
 	"gtodos/db"
 	"gtodos/models"
 	"gtodos/services"
-	"gtodos/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -59,7 +58,7 @@ func main() {
 
 func bindDataToListLine(todos *services.Todos) func(di binding.DataItem, co fyne.CanvasObject) {
 	return func(di binding.DataItem, co fyne.CanvasObject) {
-		t := utils.TodoFromDataItem(di)
+		t := models.NewTodoFromDataItem(di)
 		container := co.(*fyne.Container)
 		label := container.Objects[1].(*widget.Label)
 		check := container.Objects[0].(*widget.Check)
