@@ -7,25 +7,25 @@ import (
 )
 
 type Todos struct {
-	Data binding.UntypedList
+	binding.UntypedList
 }
 
 func NewTodos() Todos {
 	return Todos{
-		Data: binding.NewUntypedList(),
+		binding.NewUntypedList(),
 	}
 }
 
 func (t *Todos) Drop() {
-	list, _ := t.Data.Get()
+	list, _ := t.Get()
 	list = list[:0]
-	t.Data.Set(list)
+	t.Set(list)
 }
 
 func (t *Todos) All() []*models.Todo {
 	result := []*models.Todo{}
-	for i := 0; i < t.Data.Length(); i++ {
-		di, err := t.Data.GetItem(i)
+	for i := 0; i < t.Length(); i++ {
+		di, err := t.GetItem(i)
 		if err != nil {
 			break
 		}
@@ -36,5 +36,5 @@ func (t *Todos) All() []*models.Todo {
 }
 
 func (t *Todos) Add(todo *models.Todo) {
-	t.Data.Prepend(todo)
+	t.Prepend(todo)
 }
