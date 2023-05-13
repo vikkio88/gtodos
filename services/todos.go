@@ -8,8 +8,8 @@ import (
 )
 
 type Todos struct {
-	db   *db.Db
-	Data binding.UntypedList
+	binding.UntypedList
+	db *db.Db
 }
 
 func NewTodosFromDb(db *db.Db) Todos {
@@ -19,8 +19,8 @@ func NewTodosFromDb(db *db.Db) Todos {
 
 func NewTodos(db *db.Db, todos []models.Todo) Todos {
 	t := Todos{
-		db:   db,
-		Data: binding.NewUntypedList(),
+		binding.NewUntypedList(),
+		db,
 	}
 
 	for _, td := range todos {
@@ -35,9 +35,9 @@ func NewTodos(db *db.Db, todos []models.Todo) Todos {
 
 func (t *Todos) Drop() {
 	t.db.Drop()
-	list, _ := t.Data.Get()
+	list, _ := t.Get()
 	list = list[:0]
-	t.Data.Set(list)
+	t.Set(list)
 }
 
 func (t *Todos) Persist() {
@@ -46,8 +46,8 @@ func (t *Todos) Persist() {
 
 func (t *Todos) All() []*models.Todo {
 	result := []*models.Todo{}
-	for i := 0; i < t.Data.Length(); i++ {
-		di, err := t.Data.GetItem(i)
+	for i := 0; i < t.Length(); i++ {
+		di, err := t.GetItem(i)
 		if err != nil {
 			break
 		}
@@ -61,5 +61,5 @@ func (t *Todos) Add(todo *models.Todo) {
 	if todo.Id == "" {
 		t.db.InsertTodo(todo)
 	}
-	t.Data.Prepend(todo)
+	t.Prepend(todo)
 }

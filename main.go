@@ -25,7 +25,7 @@ func main() {
 	w.Resize(fyne.NewSize(480, 600))
 
 	list := widget.NewListWithData(
-		todos.Data,
+		todos,
 		rederListLine,
 		bindDataToListLine(&todos),
 	)
