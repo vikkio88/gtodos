@@ -2,6 +2,8 @@ package models
 
 import (
 	"fmt"
+
+	"fyne.io/fyne/v2/data/binding"
 )
 
 type Todo struct {
@@ -10,6 +12,10 @@ type Todo struct {
 	Done        bool   `clover:"done"`
 }
 
+func NewTodoFromDataItem(item binding.DataItem) *Todo {
+	v, _ := item.(binding.Untyped).Get()
+	return v.(*Todo)
+}
 func (t Todo) String() string {
 	return fmt.Sprintf("%s - %s  - %t", t.Id, t.Description, t.Done)
 }
@@ -20,14 +26,6 @@ func (t *Todo) MarkAsDone() {
 
 func (t *Todo) MarkAsToDo() {
 	t.Done = false
-}
-
-func (t *Todo) ToMap() map[string]interface{} {
-	result := map[string]interface{}{}
-	result["description"] = t.Description
-	result["done"] = t.Done
-
-	return result
 }
 
 func NewTodo(description string) Todo {

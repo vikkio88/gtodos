@@ -28,16 +28,3 @@ func TestTodoMarkAsDoneAndAsToDoWorksCorrectly(t *testing.T) {
 	todo.MarkAsToDo()
 	assert.Equal(t, false, todo.Done)
 }
-
-func TestTodoToMapReturnsCorrectUpdatableFields(t *testing.T) {
-	description := "A todo"
-	todo := NewTodo(description)
-	mapped := todo.ToMap()
-
-	desc, hasDesc := mapped["description"]
-	assert.True(t, hasDesc)
-	assert.Equal(t, "A todo", desc)
-	done, hasDone := mapped["done"]
-	assert.True(t, hasDone)
-	assert.Equal(t, done, false)
-}
